@@ -14,12 +14,19 @@
 
 ; COUNT
 
-(-> "http://ec2-23-20-250-74.compute-1.amazonaws.com:9200/testindex-20/log/_count"
+(doseq [iname (filter #(.contains % "testindex-") (sort (map name (->
+  "http://ec2-23-20-250-74.compute-1.amazonaws.com:9200/_aliases"
   http/get
   :body
   (json/parse-string true)
-  :count
+  keys
+  ))))]
+  (delete (format "http://%s:9200/%s" eshost iname))
   )
+
+  (identity eshost)
+
+(.contains "foo" "f")
 
 ; GRAB FIRST FAILED EVEUNT
 
@@ -93,13 +100,16 @@
 (def eshost "ec2-23-20-250-74.compute-1.amazonaws.com")
 
 (def source-indexes
-  ["000101.0000.shared.e4db46"
-   "131210.2338.shared.8ad3e8"
+  [
    "131211.0450.shared.9dd071"])
 
 ; SCRATCH
+  ;
+(reduce + (map (comp :count second) ((:dump-stats @visitor-holder))))
 
 ; MAIN
+  ;
+(deflogger logger)
 
 (do
   (refresh!)
